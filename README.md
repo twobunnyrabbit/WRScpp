@@ -274,8 +274,38 @@ The function first uses `stsreg_C()` to compute the initial estimate, next uses 
       user  system elapsed 
     25.517   0.281  26.299 
     system.time( tstsreg(dataset2[,1:4], dataset2[,5]) )
-       user  system elapsed 
-    740.578  23.169 762.316 
+       user  system elapsed
+    740.578  23.169 762.316
+
+
+### Bug Fixes
+
+**✅ FIXED: tsreg_C Residual Calculation (v2.0.0)**
+
+A bug in the residual calculation of `tsreg_C()` has been **identified and fixed** in this version.
+
+**The Bug:**
+In `src/robustmethods_CPP.cpp` line 546, the original code incorrectly computed residuals:
+
+```cpp
+res = y = x*temp - coef(0);  // INCORRECT - Original buggy code
+```
+
+**The Fix:**
+Changed to correctly calculate residuals as observed minus fitted values:
+
+```cpp
+res = y - x*temp - coef(0);  // CORRECT - Fixed code
+```
+
+**Impact:**
+- The bug caused residuals to be computed as `X*slopes - intercept` instead of the correct `y - fitted_values`
+- This affected both single and multiple predictor models
+- Coefficients were always calculated correctly (unaffected by the bug)
+- Strength of Association and Explanatory Power metrics (which depend on residuals) are now accurate
+
+**Verification:**
+All regression functions have been tested and verified to work correctly. See `test_residual_bug.R` and `demo_fix.R` for verification tests.
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mrxiaohe/wrscpp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

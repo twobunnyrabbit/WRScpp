@@ -538,12 +538,12 @@ List tsreg_C( arma::mat x, arma::colvec y, int it, bool HD){
 		    temp( j ) = tsp1reg_C( x.col(j), y - x*temp - coef(0) + temp(j)*x.col(j), false)(1);
 		}
 		R_CheckUserInterrupt();
-		if( !HD ) 
+		if( !HD )
 			coef( 0 ) = arma::as_scalar( arma::median( y - x*temp ) );
-		else 
+		else
 			coef( 0 ) = hd_C( y - x*temp, 0.5 );
 	}
-	res = y = x*temp - coef(0); 
+	res = y - x*temp - coef(0); 
 
 	for( int i = 0; i < ncols; i++ )
 		coef( i + 1 ) = temp( i ) ;
