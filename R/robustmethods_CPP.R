@@ -25,16 +25,9 @@ corfun=pbcor,plotit=FALSE,...){
 		y<-y[flag]
 		x<-as.matrix(x)
 	}
-	if(ncol(x)==1){
-		temp1<-.Call("stsregp1_C", X=x,Y=y)
-		coef<-temp1$coef
-		res<-temp1$res
-	}
-	if(ncol(x)>1){
-		temp1<-.Call("stsreg_for", X=x,Y=y, IT=as.integer(iter))
-		coef<-c(temp1$alpha, temp1$beta)
-		res<-temp1$res
-	}
+	temp1<-.Call("stsreg_C", X=x,Y=y, IT=as.integer(iter))
+	coef<-temp1$coef
+	res<-temp1$res
 	yhat<-y-res
 	stre=NULL
 	e.pow<-varfun(yhat)/varfun(y)
@@ -105,15 +98,9 @@ corfun=pbcor,plotit=FALSE,tol=.0001,...){
 		y<-y[flag]
 		x<-as.matrix(x)
 	}
-	if(ncol(x)==1){
-		coef<-.Call("tshd_C", X=x, Y=y, hd=as.integer(HD))
-		res<-y-coef[2]*x-coef[1]
-	}
-	if(ncol(x)>1){
-		temp1<-.Call("tshdreg_for", X=x,Y=y, IT=as.integer(iter), TOL=tol)
-		coef<-c(temp1$alpha, temp1$beta)
-		res<-temp1$res
-	}
+	temp1<-.Call("tshdreg_C", X=x,Y=y, IT=as.integer(iter), TOL=tol, HD=as.integer(HD))
+	coef<-temp1$coef
+	res<-temp1$res
 	yhat<-y-res
 	stre=NULL
 	temp=varfun(y)
@@ -159,16 +146,9 @@ corfun=pbcor,plotit=FALSE,WARN=TRUE,HD=FALSE,...){
 		y<-y[flag]
 		x<-as.matrix(x)
 	}
-	if(ncol(x)==1){
-		temp1<-.Call("tsp1reg_C", X=x, Y=y, HD=as.integer(HD))
-		coef<-temp1$coef
-		res<-temp1$res
-	} 
-	if(ncol(x)>1){
-		temp1<-.Call("tsreg_for", X=x, Y=y, IT=as.integer(iter), HD=as.integer(HD))
-		coef<-c(temp1$alpha,temp1$beta)
-		res<-temp1$res
-	}
+	temp1<-.Call("tsreg_C", X=x, Y=y, IT=as.integer(iter), HD=as.integer(HD))
+	coef<-temp1$coef
+	res<-temp1$res
 	yhat<-y-res
 	stre=NULL
 	temp=varfun(y)
@@ -333,7 +313,7 @@ require("Rcpp")
 			#}
 		#ic<-0
 		if(is.na(pts[1])) pts=matrix(, 2,2)
-		mdep<-t(.Call("fdepthv2_for", M=m, PTS=pts))
+		mdep<-t(.Call("fdepthv2_C", M=m, NO=nrow(m)))
 		dep<-apply(mdep,2,min)
 	}
     	if(ncol(m)==2 &&is.na(pts[1])){
