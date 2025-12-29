@@ -4,20 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-WRScpp is a pre-compiled R package that provides C++ sub-routines for the R package WRS (Robust Statistics) by Dr. Rand Wilcox. This repository contains a **binary distribution** of the package, not the source code.
-
-**Important**: This repository contains the compiled package (libs/WRScpp.so) but does NOT contain the C++ source files (.cpp/.h). The actual source code is maintained in a separate repository: https://github.com/mrxiaohe/robustmethods_cplusplus
+WRScpp is an R package that provides C++ sub-routines for the R package WRS (Robust Statistics) by Dr. Rand Wilcox. This repository contains the **source code** and can be compiled on Linux and macOS (both Intel and Apple Silicon).
 
 ## Package Structure
 
-This is an installed R package with the following structure:
-- `libs/WRScpp.so` - Pre-compiled shared library (macOS x86_64)
-- `R/WRScpp` - Lazy-loaded R functions database
+This is a standard R source package with the following structure:
+- `src/robustmethods_CPP.cpp` - C++ source code (main implementation)
+- `src/Makevars` - Build configuration for Linux/macOS
+- `src/WRScpp.so` - Compiled shared library (created during build)
+- `R/` - R wrapper functions
 - `DESCRIPTION` - Package metadata
 - `NAMESPACE` - Package namespace configuration
-- `Meta/` - Package metadata (RDS files)
-- `help/` - Help documentation database
-- `html/` - HTML documentation
+- `man/` - Documentation files
 
 ## Dependencies
 
@@ -29,10 +27,28 @@ Required R packages (from DESCRIPTION):
 
 ## Installing and Using the Package
 
-To install from this repository:
+### Prerequisites
+
+**For macOS M1/M2/M3 (Apple Silicon):**
+You must install gfortran for ARM64 before installing this package:
+1. Download from: https://mac.r-project.org/tools/
+2. Get "gfortran for arm64 (Apple Silicon)" and install the .pkg file
+3. Or use Homebrew: `brew install gcc`
+
+**For Intel Macs and Linux:**
+Standard development tools should be sufficient.
+
+### Installation
+
+To install from GitHub:
 ```r
 library("devtools")
 install_github(repo="WRScpp", username="twobunnyrabbit")
+```
+
+To install from local directory:
+```r
+devtools::install_local(".")
 ```
 
 Or to install dependencies and the WRS package:
@@ -54,19 +70,26 @@ All functions provide significant performance improvements over pure R implement
 
 ## Platform Notes
 
-- This repository contains a macOS x86_64 binary (libs/WRScpp.so is Mach-O format)
-- For 64-bit Linux: https://github.com/JoeJohnston/WRScppLin64
-- For 64-bit Windows: http://github.com/mrxiaohe/WRScppWIN
-- The compiled library is platform-specific and cannot be used across different OS/architectures
+- **macOS (Intel & Apple Silicon)**: Requires gfortran (see Prerequisites above)
+- **Linux**: Should compile with standard development tools (gcc, g++, gfortran)
+- **Windows**: May require additional configuration; see http://github.com/mrxiaohe/WRScppWIN for Windows-specific builds
+- The compiled `.so` file is platform-specific and will be rebuilt during installation
 
 ## Development Workflow
 
-Since this is a binary distribution repository:
+This is a standard R source package:
 
-1. **To modify the package**: Work in the source code repository at https://github.com/mrxiaohe/robustmethods_cplusplus
-2. **This repository is for distribution**: Contains pre-built binaries for macOS users to install via devtools::install_github()
-3. **No compilation happens here**: The .so file is pre-compiled and committed to version control
-4. **To update the binary**: Rebuild from source repository and commit the new .so file
+1. **Source code**: Main C++ implementation is in `src/robustmethods_CPP.cpp`
+2. **Build system**: Uses standard R package build tools with Rcpp/RcppArmadillo
+3. **Compilation**: The `.so` library is compiled during package installation
+4. **Build configuration**: `src/Makevars` controls compilation flags and linking
+
+### Making Changes
+
+1. Modify C++ code in `src/robustmethods_CPP.cpp`
+2. Update R wrappers in `R/` if needed
+3. Rebuild and test: `devtools::load_all()` or `devtools::install_local(".")`
+4. The package will automatically recompile when installed
 
 ## Testing
 
