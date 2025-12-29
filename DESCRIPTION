@@ -1,14 +1,29 @@
 Package: WRScpp
 Type: Package
-Title: C++ sub-routines for the R package WRS
-Version: 1.0
-Date: 2013-07-18
-Author: Rand Wilcox, Xiao He
-Maintainer: Xiao He <hex@usc.edu>
-Description: This package contains C++ implementations of iterative routines originally coded in R. These sub-routines provide substantial performance boosts.
+Title: C++ Sub-Routines for the R Package WRS
+Version: 2.0.0
+Date: 2025-12-30
+Authors@R: c(
+    person("Rand", "Wilcox", role = "aut"),
+    person("Xiao", "He", email = "hex@usc.edu", role = c("aut", "cre"))
+    )
+Description: C++ implementations of iterative routines for robust statistics,
+    originally developed for the WRS package. Provides substantial performance
+    improvements for regression estimators (Theil-Sen variants), outlier
+    detection, and depth-based methods. Includes comprehensive utility library
+    for robust statistical analysis.
 License: GPL (>= 2)
-Depends: Rcpp (>= 0.10.2), RcppArmadillo (>= 0.3.900.0), MASS (>=
-        7.3-27), scatterplot3d (>= 0.3-33)
-LinkingTo: Rcpp, RcppArmadillo, MASS, scatterplot3d
-Packaged: 2014-08-05 14:35:48 UTC; xiaohe
-Built: R 3.1.1; x86_64-apple-darwin13.1.0; 2014-08-05 14:53:59 UTC; unix
+Depends:
+    R (>= 3.1.0)
+Imports:
+    Rcpp (>= 0.10.2),
+    RcppArmadillo (>= 0.3.900.0),
+    MASS (>= 7.3-27),
+    scatterplot3d (>= 0.3-33),
+    parallel
+LinkingTo: Rcpp, RcppArmadillo
+SystemRequirements: C++11
+Encoding: UTF-8
+URL: https://github.com/twobunnyrabbit/WRScpp
+BugReports: https://github.com/twobunnyrabbit/WRScpp/issues
+OS_type: unix

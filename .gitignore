@@ -4,4 +4,17 @@
 # Example code in package build process
 *-Ex.R
 
-R/.DS_Store
+# R build artifacts
+.DS_Store
+*.o
+*.so
+*.dll
+/Meta/
+/libs/
+/help/
+/html/
+/INDEX
+
+# RcppExports auto-generated
+/src/RcppExports.cpp
+/R/RcppExports.R

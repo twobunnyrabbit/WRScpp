@@ -1,2 +1,4 @@
-useDynLib(WRScpp)
+useDynLib(WRScpp, .registration = TRUE)
 exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
+import(RcppArmadillo)

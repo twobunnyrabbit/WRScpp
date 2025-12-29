@@ -2,29 +2,65 @@ WRScpp
 ======
 
 
-This package provides `C++` sub-routines for several iterative procedures in the `R` package `WRS` for robust statistics by [Dr. Rand Wilcox](http://dornsife.usc.edu/cf/labs/wilcox/wilcox-faculty-display.cfm). These `C++` sub-routines can provide substantial performance boosts. 
+This package provides `C++` sub-routines for several iterative procedures in the `R` package `WRS` for robust statistics by [Dr. Rand Wilcox](http://dornsife.usc.edu/cf/labs/wilcox/wilcox-faculty-display.cfm). These `C++` sub-routines can provide substantial performance boosts.
 
-A 64-bit Linux version is compiled by [Joe Johnston](https://github.com/JoeJohnston/) and can be obtained here [here](https://github.com/JoeJohnston/WRScppLin64)
+**Note:** This is a source-based package that builds from C++ source code. It supports **Linux and macOS only** (no Windows support in this repository).
 
-A 64-bit Windows version can be obtained [here](http://github.com/mrxiaohe/WRScppWIN)
+The C++ source code is available at [robustmethods_cplusplus](https://github.com/mrxiaohe/robustmethods_cplusplus).
 
-The raw code is in [here](https://github.com/mrxiaohe/robustmethods_cplusplus). 
+### Installation
 
-###[Installation]
+#### System Requirements
 
-####To install this package, four R packages are required:
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install build-essential r-base-dev
 
-* `WRS`
-* `RcppArmadillo` and `Rcpp`: These two packages allow convenient interface between R and C++. `RcppArmadillo` requires `Rcpp`, so installing the first one will automatically prompt R to install the latter.
-* `devtools`: This package allows R users to install packages hosted on Github.
+# Fedora/RHEL
+sudo yum install R-devel gcc-c++ make
+```
 
-        install.packages("WRS", repos="http://R-Forge.R-project.org", type="source")
-        install.packages( c("RcppArmadillo", "devtools") )
+**macOS:**
+- Install Xcode Command Line Tools: `xcode-select --install`
+- Or install full Xcode from the App Store
 
-####Next, load devtools and install the WRScpp binary:
+#### Install R Dependencies
 
-    library("devtools")
-    install_github(repo="WRScpp", username="mrxiaohe")  
+```r
+# Install required R packages
+install.packages(c("Rcpp", "RcppArmadillo", "MASS", "scatterplot3d", "devtools"))
+
+# Optional: Install WRS package for additional robust statistics functions
+install.packages("WRS", repos="http://R-Forge.R-project.org", type="source")
+```
+
+#### Install WRScpp from GitHub
+
+```r
+library(devtools)
+install_github("twobunnyrabbit/WRScpp")
+```
+
+The package will compile from source during installation. This may take a few minutes.
+
+#### Troubleshooting
+
+If you encounter compilation errors:
+
+1. **Ensure you have a C++ compiler installed** (see System Requirements above)
+2. **Check that RcppArmadillo installs correctly:**
+   ```r
+   install.packages("RcppArmadillo")
+   ```
+3. **On Linux, ensure development libraries are installed:**
+   ```bash
+   sudo apt-get install liblapack-dev libblas-dev libgfortran-11-dev
+   ```
+4. **On macOS, ensure Xcode Command Line Tools are up to date:**
+   ```bash
+   xcode-select --install
+   ```  
 
 
 ###[Examples of a subset of functions]
