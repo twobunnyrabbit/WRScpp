@@ -166,7 +166,6 @@ double median( arma::vec x ) {
 }
 
 double mad( NumericVector x, double constant=1.4826 ){
-	int n = x.size();
 	double center = median(x);
 	NumericVector diff = x - center;
 	NumericVector diff_abs = ifelse(diff<0, -diff, diff);
@@ -241,9 +240,9 @@ double hd_C( arma::vec x, double q ){
 
 RcppExport SEXP hd_C( SEXP X, SEXP Q ){
 	BEGIN_RCPP
-	return hd_C( Rcpp::as<Rcpp::NumericVector>( wrap(X) ),
-				 Rcpp::as<Rcpp::NumericVector>( wrap(Q) )
-		);
+	return wrap( hd_C( Rcpp::as<Rcpp::NumericVector>( X ),
+				 Rcpp::as<double>( Q )
+		) );
 	END_RCPP
 }
 
@@ -255,7 +254,6 @@ NumericVector ts_proc( arma::vec x, arma::vec y ){
 NumericVector tshd_C( arma::vec x, arma::vec y, bool HD ){
 	NumericVector coef(2);
 	NumericVector v1v2 = ts_proc( x, y );
-	int n_s = v1v2.size();	
 	if( !HD ){
 		coef( 1 ) = median( v1v2 );
 	} else {
@@ -269,7 +267,6 @@ NumericVector tshd_C( arma::vec x, arma::vec y, bool HD ){
 NumericVector tshd_C( NumericVector x, NumericVector y, bool HD ){
 	NumericVector coef(2);
 	NumericVector v1v2 = ts_proc( Rcpp::as<arma::vec>(x), Rcpp::as<arma::vec>(y) );
-	int n_s = v1v2.size();	
 	if(!HD){
 		coef(1) = median(v1v2);
 	}else{
@@ -363,7 +360,6 @@ NumericVector tsp1reg_C( arma::vec x, arma::vec y, bool HD ){
 	NumericVector coef(2);
 	NumericVector v1v2 = ts_proc( x, y );
 
-	int n_s = v1v2.size();	
 	coef(1) = median( v1v2 );
 	if(!HD)
 		coef(0) = median(y) - coef(1) * median(x);
@@ -401,7 +397,6 @@ List stsregp1_C( arma::vec x, arma::vec y ){
 
 List stsreg_for( arma::mat x, arma::colvec y, int it){
 	int ncols = x.n_cols;
-	int nrows = x.n_rows;
 	NumericVector coef( ncols + 1 ); 
 	arma::colvec temp = arma::colvec( ncols );
 	for( int i = 0; i < ncols; i++ ){
@@ -842,7 +837,7 @@ RcppExport SEXP outpro_for( SEXP M, SEXP GVAL, SEXP CENTER, SEXP MM ){
 
 
 double depths1( double m, double j ){
-	double dep;
+	double dep = 0.0;
 	if( m < j ){
 		dep = 0.0;
 	} else if( j == 1.0 ){
@@ -859,7 +854,7 @@ double depths1( double m, double j ){
 double depth( double u, double v, NumericMatrix m ){
 	std::vector<double> alpha;
 	std::vector<int> fv;
-	double nums = 0.0, numh = 0.0, sdep = 0.0, p = acos(-1.0), p2 = p*2.0, eps = 0.000001, dv;
+	double nums = 0.0, numh = 0.0, p = acos(-1.0), p2 = p*2.0, eps = 0.000001, dv;
 	int n = m.nrow(), nt = 0;
 
 	for( int i=0; i < n; i++ ){
@@ -928,7 +923,7 @@ double depth( double u, double v, NumericMatrix m ){
 	}
 
 //  Mergesort the alpha with their antipodal angles beta and at the same time update I, F(I), and NBAD.
-	int ja = 1, jb = 1, nn2 = nn*2, nbad = 0, I = nu, nf = nn, nn1;
+	int ja = 1, jb = 1, nn2 = nn*2, I = nu, nf = nn, nn1;
 	double alphk = alpha[0], betak = alpha[nu] - p, add;
 	std::vector<int> fv_id;
 
@@ -951,8 +946,6 @@ double depth( double u, double v, NumericMatrix m ){
 			}
 			fv.push_back(nf);
 			fv_id.push_back(I-1);
-			int nfi = nf - I;
-			nbad += (int)depths1( (double)nfi, 2.0 );
 			if( jb < nn ){
 				jb += 1;
 				if( (jb + nu) <= nn ){
@@ -1347,9 +1340,8 @@ List ancGLOB_sub3_C(arma::mat x1, arma::vec y1, arma::mat x2, arma::vec y2, bool
 		x2 = tempx2.rows(Rcpp::as<arma::uvec>(keepid2));
 		y2 = tempy2(Rcpp::as<arma::uvec>(keepid2));
 	}
-	int N1 = y1.n_elem, N2 = y2.n_elem;
+	int N1 = y1.n_elem;
 	if(Rf_isNull(PTS)){
-		int test[5];
 		arma::uvec xorder1 = sort_index( x1.col(0) ), isub(5);
 		x1 = x1.rows(xorder1);
 		y1 = y1.elem(xorder1);
@@ -1539,7 +1531,7 @@ RcppExport SEXP skip_boot(SEXP M, SEXP MM, SEXP OUTPRO_COP, SEXP BOOTID){
 The code below is taken from the R package MASS
 */
 
-static double *coef, *qraux, *work, *res, *yr, *xr, *means, *d2, *d2copy;
+static double *qraux, *work, *xr, *means, *d2, *d2copy;
 static int *pivot, *which, *which2;
 static int *ind;
 
@@ -1838,17 +1830,18 @@ List covrob( arma::mat x, std::string nsamp = "best", std::string method = "mve"
 		    	x(j, i) = x( j, i )/divisor( i );
 		}
 
-		int qn = (int)quantileused, nsampint; 
+		int qn = (int)quantileused; 
 		int ps = p + 1;
 		double nexact = R::choose( (double)n, (double)ps );
 		
 		if( nsamp == "best" ) nsamp = nexact < 5000.0 ? "exact" : "sample";
-		
+
+		int nsampint;
 		int  samp = nsamp != "exact" ? 1 : 0;
 		if( samp == 1 ) {
 			if( nsamp == "sample")
 				nsampint = 500 * ps < 3000 ? 500 * ps : 3000;
-		} else 
+		} else
 			nsampint = (int)nexact;
 
 	 	int methodint = method == "mcd" ? 1 : 0;
@@ -1944,7 +1937,7 @@ List covrob( arma::mat x, int nsampint, std::string method = "mve",
 		    	x(j, i) = x( j, i )/divisor( i );
 		}
 
-		int qn = (int)quantileused, nsampint; 
+		int qn = (int)quantileused; 
 		int ps = p + 1;
 		double nexact = R::choose( (double)n, (double)ps );
 		
